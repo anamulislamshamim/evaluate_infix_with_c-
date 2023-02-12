@@ -1,0 +1,127 @@
+#include<bits/stdc++.h>
+using namespace std;
+int priority (char alpha)
+{
+    if(alpha == '+' || alpha =='-')
+        return 1;
+
+    if(alpha == '*' || alpha =='/')
+        return 2;
+
+    if(alpha == '^')
+        return 3;
+    return 0;
+}
+string infixTopostfix( string infix)
+{
+    int i = 0;
+    string postfix = "";
+    // using inbuilt stack< > from C++ stack library
+    stack <int>s;
+
+    while(infix[i]!='\0')
+    {
+        // if operand add to the postfix expression
+        if(infix[i]>='0' && infix[i]<='z'|| infix[i]>='A'&& infix[i]<='9')
+        {
+            postfix += infix[i];
+            i++;
+        }
+        // if opening bracket then push the stack
+        else if(infix[i]=='(')
+        {
+            s.push(infix[i]);
+            i++;
+        }
+        // if closing bracket encountered then keep popping from stack until
+        // closing a pair opening bracket is not encountered
+        else if(infix[i]==')')
+        {
+            while(s.top()!='(')
+            {
+                postfix += s.top();
+                s.pop();
+            }
+            s.pop();
+            i++;
+        }
+        else
+        {
+            while (!s.empty() && priority(infix[i]) <= priority(s.top()))
+            {
+                postfix += s.top();
+                s.pop();
+            }
+            s.push(infix[i]);
+            i++;
+        }
+    }
+    while(!s.empty())
+    {
+        postfix += s.top();
+        s.pop();
+    }
+    return postfix;
+}
+// evaluation function
+int calculate(string postfix)
+{
+    stack<int> s;
+    int n, n1,n2, digit, result;
+    int idx = 0;
+    while(postfix[idx] != '\0')
+    {
+        if(isdigit(postfix[idx]))
+        {
+            digit = postfix[idx] - 48;
+            s.push(digit);
+        }
+        else
+        {
+            n1 = s.top();
+            s.pop();
+            n2 = s.top();
+            s.pop();
+            switch(postfix[idx])
+            {
+            case '+':
+            {
+                n = n1 + n2;
+                break;
+            }
+            case '-':
+            {
+                n = n2 - n1;
+                break;
+            }
+            case '*':
+            {
+                n = n1*n2;
+                break;
+            }
+            case '/':
+            {
+                n = n2/n1;
+                break;
+            }
+            }
+            s.push(n);
+        }
+        idx++;
+    }
+    result = s.top();
+    // delete s;
+    return result;
+}
+
+int main()
+{
+    string infix;
+    cin >> infix;
+    string postfix;
+    postfix = infixTopostfix(infix);
+    cout << "Infix: " << infix << "\n";
+    cout << "PostFix: " << postfix << "\n";
+    cout << infix << " = " << calculate(postfix) << "\n";
+    return 0;
+}
